@@ -4,6 +4,7 @@
 #include "AVL.h"
 using namespace std;
 
+// helper functions
 int AVLTree::getHeight(Node* node) {
   if (node == nullptr) {
     return 0;
@@ -18,55 +19,20 @@ int AVLTree::getBalanceFactor(Node* node) {
   return getHeight(node->left) - getHeight(node->right);
 }
 
-bool AVLTree::insert(string& name, string& ufid, bool& duplicateID){
-  // checks if UFId is exactly 8 characters and if all chars are digits
-  if (ufid.length() != 8 ) { // || !all_of(ufid.begin(), ufid.end(), ::isdigit)
-    // cout << "unsuccessful" << endl;
-    return false;
-  }
-
-  // checks if all chars are digits
-  for (char c: ufid) {
-    if (!isdigit(c)) {
-      // cout << "unsuccessful" << endl;
-      return false;
-    }
-  }
-
-  // check for valid characters
-  const regex validName("^[a-zA-Z ]+$");
-  if (!regex_match(name, validName)) {
-    // cout << "unsuccessful" << endl;
-    return false;
-  }
-
-  // calls recursive helper
-  root = insertHelper(this->root, name, ufid, duplicateID);
-
-  if (duplicateID == false) {
-    // cout << "successful" << endl;
-    return true;
-  }
-  else {
-    // cout << "unsuccessful" << endl;
-    return false;
-  }
-}
-
-Node* AVLTree::insertHelper(Node* node, string& name, string& ufid, bool& duplicateID) {
+Node* AVLTree::insertHelper(Node* node, string& name, string& ufid, bool& success) {
   if (node == nullptr) {
-    duplicateID = false;
+    success = true;
     return new Node(name, ufid);
   }
   else if (ufid < node->ufid) {
-    node->left = insertHelper(node->left,name, ufid, duplicateID);
+    node->left = insertHelper(node->left,name, ufid, success);
   }
   else if (ufid > node->ufid) {
-    node->right = insertHelper(node->right, name, ufid, duplicateID);
+    node->right = insertHelper(node->right, name, ufid, success);
   }
   // checks if there are duplicate IDs
   else {
-    duplicateID = true;
+    success = false;
     return node;
   }
 
@@ -126,46 +92,241 @@ Node* AVLTree::rotateRightLeft(Node* node) {
   return rotateLeft(node);
 }
 
-void AVLTree::remove(int id){
-  return;
+void AVLTree::printPreOrderHelper(Node* root, vector<string>& nameList) {
+  if (root != nullptr) {
+    nameList.push_back(root->name);
+    printPreOrderHelper(root->left, nameList);
+    printPreOrderHelper(root->right, nameList);
+  }
 }
 
-void AVLTree::searchID(int id){
-  return;
+void AVLTree::printInOrderHelper(Node* root, vector<string>& nameList) {
+  if (root != nullptr) {
+    printInOrderHelper(root->left, nameList);
+    nameList.push_back(root->name);
+    printInOrderHelper(root->right, nameList);
+  }
+}
+
+void AVLTree::printPostOrderHelper(Node* root, vector<string>& nameList) {
+  if (root != nullptr) {
+    printPostOrderHelper(root->left, nameList);
+    printPostOrderHelper(root->right, nameList);
+    nameList.push_back(root->name);
+  }
+}
+
+void AVLTree::getInOrderUFID(Node *root, vector<string> &ufidList) {
+  if (root != nullptr) {
+    getInOrderUFID(root->left, ufidList);
+    ufidList.push_back(root->ufid);
+    getInOrderUFID(root->right, ufidList);
+  }
+}
+
+void AVLTree::searchNameHelper(Node *node, string &name, vector<string> &idFound) {
+  if (node == nullptr) {
+    return;
+  }
+
+  //uses pre-order traversal to match name and ufid
+  if (node->name == name) {
+    idFound.push_back(node->ufid);
+  }
+  searchNameHelper(node->left, name, idFound);
+  searchNameHelper(node->right, name, idFound);
+}
+
+Node* AVLTree::searchIDHelper(Node* node, string& ufid) {
+  if (node == nullptr) {
+    return nullptr;
+  }
+
+  if (ufid == node->ufid) {
+    return node;
+  }
+
+  if (ufid < node->ufid) {
+    return searchIDHelper(node->left, ufid);
+  }
+  else {
+    return searchIDHelper(node->right, ufid);
+  }
+}
+
+Node* AVLTree:: removeHelper(Node* node, string& ufid, bool& success){
+  if (node == nullptr) {
+    success = false;
+    return nullptr;
+  }
+
+  if (ufid < node->ufid) {
+    node->left = removeHelper(node->left, ufid, success);
+  }
+  else if (ufid > node->ufid) {
+    node->right = removeHelper(node->right, ufid, success);
+  }
+  else {
+    success = true;
+    Node* temp;
+
+    // 0 or 1 child case
+    if (node->left == nullptr || node->right == nullptr) {
+      temp = node->left ? node->left : node->right;
+      // 0 child case
+      if (temp == nullptr) {
+        temp = node;
+        node = nullptr;
+      }
+      // 1 child case
+      else {
+        Node* nodeDelete = node;
+        node = temp;
+        delete nodeDelete;
+        return node;
+      }
+      delete temp;
+    }
+    // 2 child case
+    else {
+      temp = node->right;
+      while (temp->left != nullptr) {
+        temp = temp->left;
+      }
+      node->name = temp->name;
+      node->ufid = temp->ufid;
+      node->right = removeHelper(node->right, temp->ufid, success);
+    }
+  }
+  if (node == nullptr) {
+    return node;
+  }
+
+  return node;
+}
+
+// public functions
+void AVLTree::insert(string name, string ufid){
+  // checks if UFId is exactly 8 characters and if all chars are digits
+  if (ufid.length() != 8 ) {
+    cout << "unsuccessful" << endl;
+    return;
+  }
+
+  // checks if all chars are digits
+  for (char c: ufid) {
+    if (!isdigit(c)) {
+      cout << "unsuccessful" << endl;
+      return;
+    }
+  }
+
+  // check for valid characters
+  const regex validName("^[a-zA-Z ]+$");
+  if (!regex_match(name, validName)) {
+    cout << "unsuccessful" << endl;
+    return;
+  }
+
+  bool success = true;
+  // calls recursive helper
+  root = insertHelper(this->root, name, ufid, success);
+
+  if (success == true) {
+    cout << "successful" << endl;
+    return;
+  }
+  else {
+    cout << "unsuccessful" << endl;
+    return;
+  }
+}
+
+void AVLTree::remove(string ufid){
+  bool success = false;
+  root = removeHelper(root, ufid, success);
+  if (success) {
+    cout << "successful" << endl;
+  }
+  else {
+    cout << "unsuccessful" << endl;
+  }
+}
+
+void AVLTree::searchID(string ufid){
+  Node* node = searchIDHelper(this->root, ufid);
+
+  if (node != nullptr) {
+    cout << node->name << endl;
+  }
+  else {
+    cout << "unsuccessful" << endl;
+  }
+
 }
 
 void AVLTree::searchName(string name){
-  return;
-}
+  vector<string> idFound;
+  searchNameHelper(root, name, idFound);
 
-void AVLTree::printInOrder(Node* root){
-  if (root != nullptr) {
-    printInOrder(root->left);
-    cout << root->name << ", ";
-    printInOrder(root->right);
+  if (idFound.empty()) {
+    cout << "unsuccessful" << endl;
+  }
+  else {
+    for (auto& id : idFound) {
+      cout << id << endl;
+    }
   }
 }
 
-void AVLTree::printPreOrder(Node* root){
-  if (root != nullptr) {
-    cout << root->name << ", ";
-    printPreOrder(root->left);
-    printPreOrder(root->right);
+void AVLTree::printPreOrder(){
+  vector<string> nameList;
+  printPreOrderHelper(this->root, nameList);
+  for (size_t i = 0; i < nameList.size(); i++) {
+    cout << nameList[i];
+    if (i < nameList.size() - 1) {
+      cout << ", ";
+    }
   }
+  cout << endl;
 }
 
-void AVLTree::printPostOrder(Node* root){
-  if (root != nullptr) {
-    printPostOrder(root->left);
-    printPostOrder(root->right);
-    cout << root->name << ", ";
+void AVLTree::printInOrder(){
+  vector<string> nameList;
+  printInOrderHelper(this->root, nameList);
+  for (size_t i = 0; i < nameList.size(); i++) {
+    cout << nameList[i];
+    if (i < nameList.size() - 1) {
+      cout << ", ";
+    }
   }
+  cout << endl;
+}
+
+void AVLTree::printPostOrder(){
+  vector<string> nameList;
+  printPostOrderHelper(this->root, nameList);
+  for (size_t i = 0; i < nameList.size(); i++) {
+    cout << nameList[i];
+    if (i < nameList.size() - 1) {
+      cout << ", ";
+    }
+  }
+  cout << endl;
 }
 
 void AVLTree::printLevelCount(){
-  return;
+  cout << getHeight(this->root) << endl;
 }
 
-void AVLTree::removeInOrderN(){
-  return;
+void AVLTree::removeInOrderN(int n){
+  vector<string> ufidList;
+  getInOrderUFID(root, ufidList);
+
+  if (n >= 0 && static_cast<size_t>(n) < ufidList.size()) {
+    remove(ufidList[n]);
+  }
+  else {
+    cout << "unsuccessful" << endl;
+  }
 }

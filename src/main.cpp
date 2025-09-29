@@ -36,17 +36,52 @@ int main(){
 			string ufid;
 			getline(in, ufid, '"');
 
-			bool duplicateID = false;
-			if (tree.insert(name, ufid, duplicateID)) {
-				cout << "successful" << endl;
+			tree.insert(name, ufid);
+		}
+		else if (command == "remove") {
+			string ufid;
+			in >> ufid;
+			tree.remove(ufid);
+		}
+		else if (command == "removeInOrderN") {
+			int n;
+			in >> n;
+			tree.removeInOrderN(n);
+		}
+		else if (command == "search") {
+			// reads up to quotation mark
+			string next;
+			getline(in, next, '"');
+
+			if (in.peek() == '"') {
+				string name;
+				in.get();
+				getline(in, name, '"');
+				tree.searchName(name);
 			}
 			else {
-				cout << "unsuccessful" << endl;
+				string ufid;
+				in >> ufid;
+				tree.searchID(ufid);
 			}
 
 		}
+		else if (command == "printInOrder") {
+			tree.printInOrder();
+		}
+		else if (command == "printPreOrder") {
+			tree.printPreOrder();
+		}
+		else if (command == "printPostOrder") {
+			tree.printPostOrder();
+		}
+		else if (command == "printLevelCount") {
+			tree.printLevelCount();
+		}
+		else {
+			cout << "unsuccessful" << endl;
+		}
 	}
-
 
 	return 0;
 }

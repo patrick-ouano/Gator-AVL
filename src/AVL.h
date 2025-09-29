@@ -25,28 +25,34 @@ private:
     Node* root = nullptr;
     int getHeight(Node* node);
     int getBalanceFactor(Node* node);
-    Node* insertHelper(Node* node, string& name, string& ufid, bool& duplicateID);
     Node* rotateLeft(Node* node);
     Node* rotateRight(Node* node);
     Node* rotateLeftRight(Node* node);
     Node* rotateRightLeft(Node* node);
+    Node* insertHelper(Node* node, string& name, string& ufid, bool& success);
+    Node* removeHelper(Node* node, string& ufid, bool& success);
+    void searchNameHelper(Node* node, string& name, vector<string>& idFound);
+    Node* searchIDHelper(Node* node, string& ufid);
+    void printInOrderHelper(Node* root, vector<string>& nameList);
+    void printPreOrderHelper(Node* root, vector<string>& nameList);
+    void printPostOrderHelper(Node* root, vector<string>& nameList);
+    void getInOrderUFID(Node* root, vector<string>& ufidList);
 public:
-    bool insert(string& name, string& ufid, bool& duplicateID);
-    void remove(int id);
-    void searchID(int id);
+    void insert(string name, string ufid);
+    void remove(string ufid);
+    void searchID(string ufid);
     void searchName(string name);
-    void printInOrder(Node* root);
-    void printPreOrder(Node* root);
-    void printPostOrder(Node* root);
+    void printInOrder();
+    void printPreOrder();
+    void printPostOrder();
     void printLevelCount();
-    void removeInOrderN();
+    void removeInOrderN(int n);
 
     // destructor
     ~AVLTree() {
         // use a postorder traversal to delete nodes since each node will
         // only get visited once with a postorder traversal
     }
-
 };
 
 #endif //AVL_H
