@@ -29,19 +29,19 @@ private:
     Node* rotateRight(Node* node);
     Node* rotateLeftRight(Node* node);
     Node* rotateRightLeft(Node* node);
-    Node* insertHelper(Node* node, string& name, string& ufid, bool& success);
-    Node* removeHelper(Node* node, string& ufid, bool& success);
-    void searchNameHelper(Node* node, string& name, vector<string>& idFound);
-    Node* searchIDHelper(Node* node, string& ufid);
+    Node* insertHelper(Node* node, const string& name, const string& ufid, bool& success);
+    Node* removeHelper(Node* node, const string& ufid, bool& success);
+    void searchNameHelper(Node* node, const string& name, vector<string>& idFound);
+    Node* searchIDHelper(Node* node, const string& ufid);
     void printInOrderHelper(Node* root, vector<string>& nameList);
     void printPreOrderHelper(Node* root, vector<string>& nameList);
     void printPostOrderHelper(Node* root, vector<string>& nameList);
     void getInOrderUFID(Node* root, vector<string>& ufidList);
 public:
-    void insert(string name, string ufid);
-    void remove(string ufid);
-    void searchID(string ufid);
-    void searchName(string name);
+    void insert(const string& name, const string& ufid);
+    void remove(const string& ufid);
+    void searchID(const string&ufid);
+    void searchName(const string& name);
     void printInOrder();
     void printPreOrder();
     void printPostOrder();

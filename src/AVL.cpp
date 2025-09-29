@@ -19,7 +19,7 @@ int AVLTree::getBalanceFactor(Node* node) {
   return getHeight(node->left) - getHeight(node->right);
 }
 
-Node* AVLTree::insertHelper(Node* node, string& name, string& ufid, bool& success) {
+Node* AVLTree::insertHelper(Node* node, const string& name, const string& ufid, bool& success) {
   if (node == nullptr) {
     success = true;
     return new Node(name, ufid);
@@ -124,7 +124,7 @@ void AVLTree::getInOrderUFID(Node *root, vector<string> &ufidList) {
   }
 }
 
-void AVLTree::searchNameHelper(Node *node, string &name, vector<string> &idFound) {
+void AVLTree::searchNameHelper(Node *node, const string& name, vector<string> &idFound) {
   if (node == nullptr) {
     return;
   }
@@ -137,7 +137,7 @@ void AVLTree::searchNameHelper(Node *node, string &name, vector<string> &idFound
   searchNameHelper(node->right, name, idFound);
 }
 
-Node* AVLTree::searchIDHelper(Node* node, string& ufid) {
+Node* AVLTree::searchIDHelper(Node* node, const string& ufid) {
   if (node == nullptr) {
     return nullptr;
   }
@@ -154,7 +154,7 @@ Node* AVLTree::searchIDHelper(Node* node, string& ufid) {
   }
 }
 
-Node* AVLTree:: removeHelper(Node* node, string& ufid, bool& success){
+Node* AVLTree:: removeHelper(Node* node, const string& ufid, bool& success){
   if (node == nullptr) {
     success = false;
     return nullptr;
@@ -173,19 +173,24 @@ Node* AVLTree:: removeHelper(Node* node, string& ufid, bool& success){
     // 0 or 1 child case
     if (node->left == nullptr || node->right == nullptr) {
       temp = node->left ? node->left : node->right;
-      // 0 child case
-      if (temp == nullptr) {
-        temp = node;
-        node = nullptr;
-      }
-      // 1 child case
-      else {
-        Node* nodeDelete = node;
-        node = temp;
-        delete nodeDelete;
-        return node;
-      }
-      delete temp;
+      Node* temp = node->left ? node->left : node->right;
+      delete node; // Delete the current node
+      return temp; // Return its child (or nullptr) to be re-linked
+
+      // // 0 child case
+      // if (temp == nullptr) {
+      //   temp = node;
+      //   node = nullptr;
+      // }
+      // // 1 child case
+      // else {
+      //   Node* nodeDelete = node;
+      //   node = temp;
+      //   delete nodeDelete;
+      //   return node;
+      // }
+      // delete temp;
+
     }
     // 2 child case
     else {
@@ -206,7 +211,7 @@ Node* AVLTree:: removeHelper(Node* node, string& ufid, bool& success){
 }
 
 // public functions
-void AVLTree::insert(string name, string ufid){
+void AVLTree::insert(const string& name, const string& ufid){
   // checks if UFId is exactly 8 characters and if all chars are digits
   if (ufid.length() != 8 ) {
     cout << "unsuccessful" << endl;
@@ -242,7 +247,7 @@ void AVLTree::insert(string name, string ufid){
   }
 }
 
-void AVLTree::remove(string ufid){
+void AVLTree::remove(const string& ufid){
   bool success = false;
   root = removeHelper(root, ufid, success);
   if (success) {
@@ -253,7 +258,7 @@ void AVLTree::remove(string ufid){
   }
 }
 
-void AVLTree::searchID(string ufid){
+void AVLTree::searchID(const string& ufid){
   Node* node = searchIDHelper(this->root, ufid);
 
   if (node != nullptr) {
@@ -265,7 +270,7 @@ void AVLTree::searchID(string ufid){
 
 }
 
-void AVLTree::searchName(string name){
+void AVLTree::searchName(const string& name){
   vector<string> idFound;
   searchNameHelper(root, name, idFound);
 
