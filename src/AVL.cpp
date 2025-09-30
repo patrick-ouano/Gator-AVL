@@ -344,7 +344,6 @@ void AVLTree::removeInOrderN(int n){
   // checks if nthNode is not negative and is in list
   if (nthNode >= 0 && nthNode < ufidList.size()) {
     remove(ufidList[n]);
-    cout << "successful" << endl;
   }
   else {
     cout << "unsuccessful" << endl;
