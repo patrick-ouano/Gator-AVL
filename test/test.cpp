@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iostream>
 #include <algorithm>
+#include <unordered_set>
 #include "AVL.h"
 
 // Name: Patrick Ouano
@@ -128,8 +129,35 @@ TEST_CASE("Deletion Cases", "[flag]") {
 }
 
 // Test Case 5: inserts 100 nodes, removes 10 and checks if in order
-TEST_CASE("Insert 100, Remove 10, and Verify In-Order", "[avl_custom]") {
+TEST_CASE("Insert 100 nodes, remove 10 random nodes", "[flag]") {
+    std::ostringstream captured_output;
+    std::streambuf* original_buffer = std::cout.rdbuf();
+    std::cout.rdbuf(captured_output.rdbuf());
 
+    AVLTree tree;
+    std::string expected_output = "";
+
+    for (int i = 10000000; i < 10000100; ++i) {
+        tree.insert("Student", std::to_string(i));
+        expected_output += "successful\n";
+    }
+
+    std::unordered_set<int> removedIds;
+    srand(time(0));
+    while (removedIds.size() < 10) {
+        int random_id = 10000000 + (rand() % 100);
+
+        // Ensure we haven't removed this ID already
+        if (removedIds.find(random_id) == removedIds.end()) {
+            removedIds.insert(random_id);
+            tree.remove(std::to_string(random_id));
+            expected_output += "successful\n";
+        }
+    }
+
+    std::cout.rdbuf(original_buffer);
+
+    REQUIRE(captured_output.str() == expected_output);
 }
 
 // Test Case 6: tests all traversals and printlevelcount
