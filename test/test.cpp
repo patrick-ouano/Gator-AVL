@@ -3,6 +3,7 @@
 #include <vector>
 #include <sstream>
 #include <iostream>
+#include <algorithm>
 #include "AVL.h"
 
 // Name: Patrick Ouano
@@ -10,98 +11,321 @@
 
 using namespace std;
 
-// // Test Case 1: Testing invalid commands and data validation
-// TEST_CASE("Test 1: Incorrect Commands", "[invalid]") {
-//     // Redirect cout to a string stream to capture output
-//     ostringstream oss;
-//     streambuf* rdbuf = std::cout.rdbuf();
-//     cout.rdbuf(oss.rdbuf());
-//
-//     AVLTree tree;
-//
-//     // Test 1: Insert with invalid UFID (too short)
-//     tree.insert("StudentA", "12345");
-//
-//     // Test 2: Insert with invalid UFID (contains letters)
-//     tree.insert("StudentB", "1234567a");
-//
-//     // Test 3: Insert with invalid name (contains numbers)
-//     tree.insert("Student123", "88888888");
-//
-//     // Test 4: Remove a non-existent ID from an empty tree
-//     tree.remove("99999999");
-//
-//     // Test 5: RemoveInorder N on an empty tree
-//     tree.removeInOrderN(0);
-//
-//     // Restore cout and check the captured output
-//     cout.rdbuf(rdbuf);
-//     REQUIRE(oss.str() == "unsuccessful\nunsuccessful\nunsuccessful\nunsuccessful\nunsuccessful\n");
-// }
-//
-// // Test Case 2: Testing all four AVL rotation cases on insertion
-// TEST_CASE("Test 2: All Four Rotation Cases", "[rotations]") {
-//     // Redirect cout to a string stream to capture output
-//     ostringstream oss;
-//     streambuf* rdbuf = std::cout.rdbuf();
-//     cout.rdbuf(oss.rdbuf());
-//
-//     // Test Right Rotation (Left-Left Case)
-//     AVLTree ll_tree;
-//     ll_tree.insert("C", "00000003");
-//     ll_tree.insert("B", "00000002");
-//     ll_tree.insert("A", "00000001");
-//
-//     // Test Left Rotation (Right-Right Case)
-//     AVLTree rr_tree;
-//     rr_tree.insert("A", "00000001");
-//     rr_tree.insert("B", "00000002");
-//     rr_tree.insert("C", "00000003");
-//
-//     // Test Left-Right Rotation (Left-Right Case)
-//     AVLTree lr_tree;
-//     lr_tree.insert("C", "00000003");
-//     lr_tree.insert("A", "00000001");
-//     lr_tree.insert("B", "00000002");
-//
-//     // Test Right-Left Rotation (Right-Left Case)
-//     AVLTree rl_tree;
-//     rl_tree.insert("A", "00000001");
-//     rl_tree.insert("C", "00000003");
-//     rl_tree.insert("B", "00000002");
-//
-//     // Restore cout and check the captured output
-//     cout.rdbuf(rdbuf);
-//     // Each of the 12 inserts (4 cases * 3 inserts) should be successful
-//     REQUIRE(oss.str() == "successful\nsuccessful\nsuccessful\n"
-//                            "successful\nsuccessful\nsuccessful\n"
-//                            "successful\nsuccessful\nsuccessful\n"
-//                            "successful\nsuccessful\nsuccessful\n");
-// }
-
-
-TEST_CASE("Edge Cases (Remove when tree is empty, remove node that doesn't exist, add node that exists", "[flag]"){
-    // Redirect cout to a string stream to capture output
+// Test Case 1: tests at least five incorrect commands/inputs
+TEST_CASE("Test 1: Incorrect Commands", "[invalid]") {
+    // redirects a stringstream to cout - taken from https://stackoverflow.com/questions/4191089/how-to-unit-test-function-writing-to-stdout-stdcout
     ostringstream oss;
     streambuf* rdbuf = std::cout.rdbuf();
     cout.rdbuf(oss.rdbuf());
 
     AVLTree tree;
 
-    // Test 1: Remove from an empty tree
-    tree.removeInOrderN(5);
+    // short ufid
+    tree.insert("Patrick", "12345");
 
-    // Test 2: Successful insert
-    tree.insert("Dylan Tran", "99363932");
+    // ufid too long
+    tree.insert("Eric", "123456789");
 
-    // Test 3: Remove a non-existent ID
-    tree.remove("99363933");
+    // ufid contains letters
+    tree.insert("Nate", "abcdefgh");
 
-    // Test 4: Insert a duplicate ID
-    // FIX: Changed 99363932 to "99363932" to match function signature
-    tree.insert("Charelion", "99363932");
+    // name contains symbol
+    tree.insert("Joh3n", "00000000");
+
+    // invalid characters in name
+    tree.searchName("Isaiah$");
+
+    cout.rdbuf(rdbuf);
+    REQUIRE(oss.str() == "unsuccessful\nunsuccessful\nunsuccessful\nunsuccessful\nunsuccessful\n");
+}
+
+// Test Case 2: tests three edge cases
+TEST_CASE("Test 2: Edge Cases", "[edge_cases]") {
+    ostringstream oss;
+    streambuf* rdbuf = std::cout.rdbuf();
+    cout.rdbuf(oss.rdbuf());
+
+    AVLTree tree;
+
+    // Test 1: removes node from non-existent tree
+    tree.remove("12345678");
+
+    // Test 2: inserts duplicate IDs
+    tree.insert("Patrick", "12345678");
+    tree.insert("Johan", "12345678");
+
+    // Test 3: removes node that doesn't exist
+    tree.remove("87654321");
+
+    cout.rdbuf(rdbuf);
+    REQUIRE(oss.str() == "unsuccessful\nsuccessful\nunsuccessful\nunsuccessful\n");
+}
+
+// Test Case 3: tests all four rotation cases
+TEST_CASE("Rotation Cases", "[rotations]") {
+    ostringstream oss;
+    streambuf* rdbuf = std::cout.rdbuf();
+    cout.rdbuf(oss.rdbuf());
+
+    // tests right rotation - left-left case
+    AVLTree rrTree;
+    rrTree.insert("C", "00000003");
+    rrTree.insert("B", "00000002");
+    rrTree.insert("A", "00000001");
+
+    // tests left rotation - right-right case
+    AVLTree llTree;
+    llTree.insert("A", "00000001");
+    llTree.insert("B", "00000002");
+    llTree.insert("C", "00000003");
+
+    // tests left-right rotation - right-left case
+    AVLTree lrTree;
+    lrTree.insert("C", "00000003");
+    lrTree.insert("A", "00000001");
+    lrTree.insert("B", "00000002");
+
+    // tests right-left rotation - left-right case
+    AVLTree rlTree;
+    rlTree.insert("A", "00000001");
+    rlTree.insert("C", "00000003");
+    rlTree.insert("B", "00000002");
+
+    cout.rdbuf(rdbuf);
+    REQUIRE(oss.str() == "successful\nsuccessful\nsuccessful\n"
+                           "successful\nsuccessful\nsuccessful\n"
+                           "successful\nsuccessful\nsuccessful\n"
+                           "successful\nsuccessful\nsuccessful\n");
+}
+
+// Test Case 4: tests all three deletion cases
+TEST_CASE("Deletion Cases", "[deletion]") {
+    ostringstream oss;
+    streambuf* rdbuf = std::cout.rdbuf();
+    cout.rdbuf(oss.rdbuf());
+
+    AVLTree tree;
+    tree.insert("D", "00000004");
+    tree.insert("B", "00000002");
+    tree.insert("F", "00000006");
+    tree.insert("A", "00000001");
+    tree.insert("C", "00000003");
+    tree.insert("E", "00000005");
+    tree.insert("G", "00000007");
+
+    // Test 1: removes node with no children
+    tree.remove("00000001");
+
+    // Test 2: removes node with one child
+    tree.remove("00000006");
+
+    // Test 3: removes node with two children
+    tree.remove("00000004");
+
+    cout.rdbuf(rdbuf);
+    REQUIRE(oss.str() == "successful\nsuccessful\nsuccessful\nsuccessful\nsuccessful\nsuccessful\nsuccessful\n"
+                           "successful\nsuccessful\nsuccessful\n");
+}
+
+// Test Case for inserting 100 nodes and removing 10
+TEST_CASE("Test 5: Large Scale Insert and Remove", "[large_scale]") {
+    // Redirect cout to a string stream to capture output
+    ostringstream oss;
+    streambuf* rdbuf = std::cout.rdbuf();
+    cout.rdbuf(oss.rdbuf());
+
+    AVLTree tree;
+    vector<pair<string, string>> students;
+
+    // 1. Insert 100 nodes and store them in a reference vector
+    for (int i = 1; i <= 100; ++i) {
+        string id = to_string(i);
+        // Pad the ID with leading zeros to make it 8 digits
+        id = string(8 - id.length(), '0') + id;
+        string name = "Student" + to_string(i);
+        students.push_back({id, name});
+        tree.insert(name, id);
+    }
+
+    // 2. Remove 10 chosen nodes
+    vector<string> ids_to_remove = {"00000010", "00000020", "00000030", "00000040", "00000050",
+                                    "00000060", "00000070", "00000080", "00000090", "00000100"};
+
+    for(const auto& id : ids_to_remove) {
+        tree.remove(id);
+    }
+
+    // 3. Print the inorder traversal of the remaining 90 nodes
+    tree.printInOrder();
+
+    // 4. Build the expected output string to match the captured output
+    string expected_output;
+    // 100 successful inserts
+    for (int i = 0; i < 100; ++i) {
+        expected_output += "successful\n";
+    }
+    // 10 successful removes
+    for (int i = 0; i < 10; ++i) {
+        expected_output += "successful\n";
+    }
+
+    // Remove the same students from our reference vector to build the expected inorder string
+    students.erase(remove_if(students.begin(), students.end(),
+        [&](const pair<string, string>& student) {
+            return find(ids_to_remove.begin(), ids_to_remove.end(), student.first) != ids_to_remove.end();
+        }), students.end());
+
+    // Build the expected inorder string from the remaining 90 students
+    for (size_t i = 0; i < students.size(); ++i) {
+        expected_output += students[i].second;
+        if (i < students.size() - 1) {
+            expected_output += ", ";
+        }
+    }
+    expected_output += "\n";
 
     // Restore cout and check the captured output
     cout.rdbuf(rdbuf);
-    REQUIRE(oss.str() == "unsuccessful\nsuccessful\nunsuccessful\nunsuccessful\n");
+    REQUIRE(oss.str() == expected_output);
+}
+
+// TEST_CASE("BST Insert Large", "[flag]"){
+//     ostringstream oss;
+//     streambuf* rdbuf = std::cout.rdbuf();
+//     cout.rdbuf(oss.rdbuf());
+//
+//     AVLTree tree;
+//     vector<int> expectedOutput, actualOutput;
+//
+//     for(int i = 0; i < 100000; i++)
+//     {
+//         int randomInput = rand();
+//         if (std::count(expectedOutput.begin(), expectedOutput.end(), randomInput) == 0)
+//         {
+//             expectedOutput.push_back(randomInput);
+//             tree.insert(randomInput);
+//         }
+//     }
+//
+//     actualOutput = tree.inorder();
+//     REQUIRE(expectedOutput.size() == actualOutput.size());
+//     REQUIRE_FALSE(expectedOutput == actualOutput);    //This assertion can be wrong. Don't use
+//     std::sort(expectedOutput.begin(), expectedOutput.end());
+//     REQUIRE(expectedOutput == actualOutput);
+//
+// }
+
+TEST_CASE("Printing Traversals and Level", "[traversals]") {
+    ostringstream oss;
+    streambuf* rdbuf = std::cout.rdbuf();
+    cout.rdbuf(oss.rdbuf());
+
+    AVLTree tree;
+    tree.insert("D", "00000004");
+    tree.insert("B", "00000002");
+    tree.insert("F", "00000006");
+    tree.insert("A", "00000001");
+    tree.insert("C", "00000003");
+    tree.insert("E", "00000005");
+    tree.insert("G", "00000007");
+
+    tree.printInOrder();
+    tree.printPreOrder();
+    tree.printPostOrder();
+    tree.printLevelCount();
+
+    cout.rdbuf(rdbuf);
+
+    REQUIRE(oss.str() == "successful\nsuccessful\nsuccessful\nsuccessful\nsuccessful\nsuccessful\nsuccessful\n"
+                         "A, B, C, D, E, F, G\n"
+                         "D, B, A, C, F, E, G\n"
+                         "A, C, B, E, G, F, D\n"
+                         "3\n");
+}
+
+TEST_CASE("Test removeInOrderN", "[removeInOrder]") {
+    ostringstream oss;
+    streambuf* rdbuf = std::cout.rdbuf();
+    cout.rdbuf(oss.rdbuf());
+
+    AVLTree tree;
+    tree.insert("D", "00000004");
+    tree.insert("B", "00000002");
+    tree.insert("F", "00000006");
+    tree.insert("A", "00000001");
+    tree.insert("C", "00000003");
+    tree.insert("E", "00000005");
+    tree.insert("G", "00000007");
+
+    // Test 1: removes the 0th element
+    tree.removeInOrderN(0);
+    tree.printInOrder();
+
+    // Test 2: removes the 5th element
+    tree.removeInOrderN(5);
+    tree.printInOrder();
+
+    // Test 3: removes the 2nd element
+    tree.removeInOrderN(2);
+    tree.printInOrder();
+
+    // Test 4: out of bounds index
+    tree.removeInOrderN(10);
+
+    // Test 5: negative index
+    tree.removeInOrderN(-1);
+
+    cout.rdbuf(rdbuf);
+
+    REQUIRE(oss.str() == "successful\nsuccessful\nsuccessful\nsuccessful\nsuccessful\nsuccessful\nsuccessful\n"
+                         "successful\nsuccessful\nB, C, D, E, F, G\n"
+                         "successful\nsuccessful\nB, C, D, E, F\n"
+                         "successful\nsuccessful\nB, C, E, F\n"
+                         "unsuccessful\n"
+                         "unsuccessful\n");
+}
+
+TEST_CASE("Test Search", "[search]") {
+    ostringstream oss;
+    streambuf* rdbuf = std::cout.rdbuf();
+    cout.rdbuf(oss.rdbuf());
+
+    AVLTree tree;
+    tree.insert("Patrick", "00000001");
+    tree.insert("Chun", "00000002");
+    tree.insert("Johan", "00000003");
+    tree.insert("Patrick", "00000007");
+    tree.insert("Isaiah", "00000004");
+    tree.insert("Nate", "00000005");
+    tree.insert("Johann", "00000006");
+
+    // Test 1: search for existing ID
+    tree.searchID("00000001");
+
+    // Test 2: search for ID that does not exist
+    tree.searchID("12345678");
+
+    // Test 3: search for root node
+    tree.searchID("00000004");
+
+    // Test 4: search for name that appears once
+    tree.searchName("Chun");
+
+    // Test 5: search for name that appears multiple times
+    tree.searchName("Patrick");
+
+    // Test 6: search for name that does not exist
+    tree.searchName("Ethan");
+
+    cout.rdbuf(rdbuf);
+
+    REQUIRE(oss.str() == "successful\nsuccessful\nsuccessful\nsuccessful\nsuccessful\nsuccessful\nsuccessful\n"
+                         "Patrick\n"
+                         "unsuccessful\n"
+                         "Isaiah\n"
+                         "00000002\n"
+                         "00000001\n"
+                         "00000007\n"
+                         "unsuccessful\n"
+                         );
 }

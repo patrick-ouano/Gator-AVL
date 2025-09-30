@@ -44,11 +44,9 @@ Node* AVLTree::insertHelper(Node* node, const string& name, const string& ufid, 
     // if tree's right subtree is left heavy
     if (getBalanceFactor(node->right) > 1) {
       node = rotateRightLeft(node);
-      node->height = 1 + max(getHeight(node->left), getHeight(node->right));
     }
     else {
       node = rotateLeft(node);
-      node->height = 1 + max(getHeight(node->left), getHeight(node->right));
     }
   }
   // if tree is left heavy
@@ -56,11 +54,9 @@ Node* AVLTree::insertHelper(Node* node, const string& name, const string& ufid, 
     // if tree's left subtree is right heavy
     if (getBalanceFactor(node->left) < -1) {
       node = rotateLeftRight(node);
-      node->height = 1 + max(getHeight(node->left), getHeight(node->right));
     }
     else {
       node = rotateRight(node);
-      node->height = 1 + max(getHeight(node->left), getHeight(node->right));
     }
   }
   return node;
@@ -71,14 +67,23 @@ Node* AVLTree::rotateLeft(Node* node) {
   Node* newParent = node->right;
   newParent->left = node;
   node->right = grandchild;
+
+  // updates height
+  node->height = 1 + max(getHeight(node->left), getHeight(node->right));
+  newParent->height = 1 + max(getHeight(newParent->left), getHeight(newParent->right));
   return newParent;
 }
 
+// taken from slides
 Node* AVLTree::rotateRight(Node* node) {
   Node* grandchild = node->left->right;
   Node* newParent = node->left;
   newParent->right = node;
   node->left = grandchild;
+
+  // updates height
+  node->height = 1 + max(getHeight(node->left), getHeight(node->right));
+  newParent->height = 1 + max(getHeight(newParent->left), getHeight(newParent->right));
   return newParent;
 }
 
@@ -128,7 +133,6 @@ void AVLTree::searchNameHelper(Node *node, const string& name, vector<string> &i
   if (node == nullptr) {
     return;
   }
-
   //uses pre-order traversal to match name and ufid
   if (node->name == name) {
     idFound.push_back(node->ufid);
@@ -169,28 +173,15 @@ Node* AVLTree:: removeHelper(Node* node, const string& ufid, bool& success){
   else {
     success = true;
     Node* temp;
-
     // 0 or 1 child case
     if (node->left == nullptr || node->right == nullptr) {
-      temp = node->left ? node->left : node->right;
-      Node* temp = node->left ? node->left : node->right;
-      delete node; // Delete the current node
-      return temp; // Return its child (or nullptr) to be re-linked
-
-      // // 0 child case
-      // if (temp == nullptr) {
-      //   temp = node;
-      //   node = nullptr;
-      // }
-      // // 1 child case
-      // else {
-      //   Node* nodeDelete = node;
-      //   node = temp;
-      //   delete nodeDelete;
-      //   return node;
-      // }
-      // delete temp;
-
+      if (node->left != nullptr) {
+        temp = node->left;
+      } else {
+        temp = node->right;
+      }
+      delete node;
+      return temp;
     }
     // 2 child case
     else {
@@ -202,9 +193,6 @@ Node* AVLTree:: removeHelper(Node* node, const string& ufid, bool& success){
       node->ufid = temp->ufid;
       node->right = removeHelper(node->right, temp->ufid, success);
     }
-  }
-  if (node == nullptr) {
-    return node;
   }
 
   return node;
@@ -249,7 +237,7 @@ void AVLTree::insert(const string& name, const string& ufid){
 
 void AVLTree::remove(const string& ufid){
   bool success = false;
-  root = removeHelper(root, ufid, success);
+  root = removeHelper(this->root, ufid, success);
   if (success) {
     cout << "successful" << endl;
   }
@@ -267,7 +255,6 @@ void AVLTree::searchID(const string& ufid){
   else {
     cout << "unsuccessful" << endl;
   }
-
 }
 
 void AVLTree::searchName(const string& name){
@@ -278,8 +265,8 @@ void AVLTree::searchName(const string& name){
     cout << "unsuccessful" << endl;
   }
   else {
-    for (auto& id : idFound) {
-      cout << id << endl;
+    for (size_t i = 0; i < idFound.size(); i++) {
+      cout << idFound[i] << endl;
     }
   }
 }
@@ -326,10 +313,11 @@ void AVLTree::printLevelCount(){
 
 void AVLTree::removeInOrderN(int n){
   vector<string> ufidList;
-  getInOrderUFID(root, ufidList);
+  getInOrderUFID(this->root, ufidList);
 
   if (n >= 0 && static_cast<size_t>(n) < ufidList.size()) {
     remove(ufidList[n]);
+    cout << "successful" << endl;
   }
   else {
     cout << "unsuccessful" << endl;

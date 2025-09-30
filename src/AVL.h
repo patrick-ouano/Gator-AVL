@@ -1,5 +1,8 @@
 #ifndef AVL_H
 #define AVL_H
+#include <vector>
+#include <iostream>
+#include <string>
 using namespace std;
 
 struct Node {
