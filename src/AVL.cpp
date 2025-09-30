@@ -42,7 +42,7 @@ Node* AVLTree::insertHelper(Node* node, const string& name, const string& ufid, 
   // if tree is right heavy
   if (getBalanceFactor(node) < -1) {
     // if tree's right subtree is left heavy
-    if (getBalanceFactor(node->right) > 1) {
+    if (getBalanceFactor(node->right) > 0) {
       node = rotateRightLeft(node);
     }
     else {
@@ -52,7 +52,7 @@ Node* AVLTree::insertHelper(Node* node, const string& name, const string& ufid, 
   // if tree is left heavy
   else if (getBalanceFactor(node) > 1) {
     // if tree's left subtree is right heavy
-    if (getBalanceFactor(node->left) < -1) {
+    if (getBalanceFactor(node->left) < 0) {
       node = rotateLeftRight(node);
     }
     else {
@@ -149,8 +149,7 @@ Node* AVLTree::searchIDHelper(Node* node, const string& ufid) {
   if (ufid == node->ufid) {
     return node;
   }
-
-  if (ufid < node->ufid) {
+  else if (ufid < node->ufid) {
     return searchIDHelper(node->left, ufid);
   }
   else {
@@ -195,6 +194,30 @@ Node* AVLTree:: removeHelper(Node* node, const string& ufid, bool& success){
     }
   }
 
+  // update height - taken from lecture video
+  node->height = 1 + max(getHeight(node->left), getHeight(node->right));
+
+  // if tree is right heavy
+  if (getBalanceFactor(node) < -1) {
+    // if tree's right subtree is left heavy
+    if (getBalanceFactor(node->right) > 0) {
+      node = rotateRightLeft(node);
+    }
+    else {
+      node = rotateLeft(node);
+    }
+  }
+  // if tree is left heavy
+  else if (getBalanceFactor(node) > 1) {
+    // if tree's left subtree is right heavy
+    if (getBalanceFactor(node->left) < 0) {
+      node = rotateLeftRight(node);
+    }
+    else {
+      node = rotateRight(node);
+    }
+  }
+
   return node;
 }
 
@@ -214,7 +237,7 @@ void AVLTree::insert(const string& name, const string& ufid){
     }
   }
 
-  // check for valid characters
+  // check for valid characters - taken from helpful resources in canvas https://www.onlinegdb.com/kCOQdeHfqd
   const regex validName("^[a-zA-Z ]+$");
   if (!regex_match(name, validName)) {
     cout << "unsuccessful" << endl;
@@ -315,7 +338,11 @@ void AVLTree::removeInOrderN(int n){
   vector<string> ufidList;
   getInOrderUFID(this->root, ufidList);
 
-  if (n >= 0 && static_cast<size_t>(n) < ufidList.size()) {
+  // converts n to size t to compare with ufidList
+  size_t nthNode = n;
+
+  // checks if nthNode is not negative and is in list
+  if (nthNode >= 0 && nthNode < ufidList.size()) {
     remove(ufidList[n]);
     cout << "successful" << endl;
   }

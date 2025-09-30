@@ -32,9 +32,9 @@ int main(){
 			string name;
 			getline(in, name, '"');
 
-			// reads ufid by skipping the white space and the quote
+			// reads ufid
 			string ufid;
-			getline(in, ufid, '"');
+			in >> ufid;
 
 			tree.insert(name, ufid);
 		}
@@ -43,7 +43,7 @@ int main(){
 			in >> ufid;
 			tree.remove(ufid);
 		}
-		else if (command == "removeInOrderN") {
+		else if (command == "removeInorder") {
 			int n;
 			in >> n;
 			tree.removeInOrderN(n);
@@ -53,6 +53,7 @@ int main(){
 			string next;
 			getline(in, next, '"');
 
+			// checks if there is a quotation mark for name - taken from https://www.geeksforgeeks.org/cpp/basic_istreampeek-in-c-with-examples/
 			if (in.peek() == '"') {
 				string name;
 				in.get();
@@ -66,13 +67,13 @@ int main(){
 			}
 
 		}
-		else if (command == "printInOrder") {
+		else if (command == "printInorder") {
 			tree.printInOrder();
 		}
-		else if (command == "printPreOrder") {
+		else if (command == "printPreorder") {
 			tree.printPreOrder();
 		}
-		else if (command == "printPostOrder") {
+		else if (command == "printPostorder") {
 			tree.printPostOrder();
 		}
 		else if (command == "printLevelCount") {

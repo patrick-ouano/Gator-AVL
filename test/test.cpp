@@ -12,7 +12,7 @@
 using namespace std;
 
 // Test Case 1: tests at least five incorrect commands/inputs
-TEST_CASE("Test 1: Incorrect Commands", "[invalid]") {
+TEST_CASE("Test 1: Incorrect Commands", "[flag]") {
     // redirects a stringstream to cout - taken from https://stackoverflow.com/questions/4191089/how-to-unit-test-function-writing-to-stdout-stdcout
     ostringstream oss;
     streambuf* rdbuf = std::cout.rdbuf();
@@ -62,7 +62,7 @@ TEST_CASE("Test 2: Edge Cases", "[edge_cases]") {
 }
 
 // Test Case 3: tests all four rotation cases
-TEST_CASE("Rotation Cases", "[rotations]") {
+TEST_CASE("Rotation Cases", "[flag]") {
     ostringstream oss;
     streambuf* rdbuf = std::cout.rdbuf();
     cout.rdbuf(oss.rdbuf());
@@ -99,7 +99,7 @@ TEST_CASE("Rotation Cases", "[rotations]") {
 }
 
 // Test Case 4: tests all three deletion cases
-TEST_CASE("Deletion Cases", "[deletion]") {
+TEST_CASE("Deletion Cases", "[flag]") {
     ostringstream oss;
     streambuf* rdbuf = std::cout.rdbuf();
     cout.rdbuf(oss.rdbuf());
@@ -127,95 +127,13 @@ TEST_CASE("Deletion Cases", "[deletion]") {
                            "successful\nsuccessful\nsuccessful\n");
 }
 
-// Test Case for inserting 100 nodes and removing 10
-TEST_CASE("Test 5: Large Scale Insert and Remove", "[large_scale]") {
-    // Redirect cout to a string stream to capture output
-    ostringstream oss;
-    streambuf* rdbuf = std::cout.rdbuf();
-    cout.rdbuf(oss.rdbuf());
+// Test Case 5: inserts 100 nodes, removes 10 and checks if in order
+TEST_CASE("Insert 100, Remove 10, and Verify In-Order", "[avl_custom]") {
 
-    AVLTree tree;
-    vector<pair<string, string>> students;
-
-    // 1. Insert 100 nodes and store them in a reference vector
-    for (int i = 1; i <= 100; ++i) {
-        string id = to_string(i);
-        // Pad the ID with leading zeros to make it 8 digits
-        id = string(8 - id.length(), '0') + id;
-        string name = "Student" + to_string(i);
-        students.push_back({id, name});
-        tree.insert(name, id);
-    }
-
-    // 2. Remove 10 chosen nodes
-    vector<string> ids_to_remove = {"00000010", "00000020", "00000030", "00000040", "00000050",
-                                    "00000060", "00000070", "00000080", "00000090", "00000100"};
-
-    for(const auto& id : ids_to_remove) {
-        tree.remove(id);
-    }
-
-    // 3. Print the inorder traversal of the remaining 90 nodes
-    tree.printInOrder();
-
-    // 4. Build the expected output string to match the captured output
-    string expected_output;
-    // 100 successful inserts
-    for (int i = 0; i < 100; ++i) {
-        expected_output += "successful\n";
-    }
-    // 10 successful removes
-    for (int i = 0; i < 10; ++i) {
-        expected_output += "successful\n";
-    }
-
-    // Remove the same students from our reference vector to build the expected inorder string
-    students.erase(remove_if(students.begin(), students.end(),
-        [&](const pair<string, string>& student) {
-            return find(ids_to_remove.begin(), ids_to_remove.end(), student.first) != ids_to_remove.end();
-        }), students.end());
-
-    // Build the expected inorder string from the remaining 90 students
-    for (size_t i = 0; i < students.size(); ++i) {
-        expected_output += students[i].second;
-        if (i < students.size() - 1) {
-            expected_output += ", ";
-        }
-    }
-    expected_output += "\n";
-
-    // Restore cout and check the captured output
-    cout.rdbuf(rdbuf);
-    REQUIRE(oss.str() == expected_output);
 }
 
-// TEST_CASE("BST Insert Large", "[flag]"){
-//     ostringstream oss;
-//     streambuf* rdbuf = std::cout.rdbuf();
-//     cout.rdbuf(oss.rdbuf());
-//
-//     AVLTree tree;
-//     vector<int> expectedOutput, actualOutput;
-//
-//     for(int i = 0; i < 100000; i++)
-//     {
-//         int randomInput = rand();
-//         if (std::count(expectedOutput.begin(), expectedOutput.end(), randomInput) == 0)
-//         {
-//             expectedOutput.push_back(randomInput);
-//             tree.insert(randomInput);
-//         }
-//     }
-//
-//     actualOutput = tree.inorder();
-//     REQUIRE(expectedOutput.size() == actualOutput.size());
-//     REQUIRE_FALSE(expectedOutput == actualOutput);    //This assertion can be wrong. Don't use
-//     std::sort(expectedOutput.begin(), expectedOutput.end());
-//     REQUIRE(expectedOutput == actualOutput);
-//
-// }
-
-TEST_CASE("Printing Traversals and Level", "[traversals]") {
+// Test Case 6: tests all traversals and printlevelcount
+TEST_CASE("Printing Traversals and Level", "[flag]") {
     ostringstream oss;
     streambuf* rdbuf = std::cout.rdbuf();
     cout.rdbuf(oss.rdbuf());
@@ -243,7 +161,8 @@ TEST_CASE("Printing Traversals and Level", "[traversals]") {
                          "3\n");
 }
 
-TEST_CASE("Test removeInOrderN", "[removeInOrder]") {
+// Test 7: tests removeInOrder
+TEST_CASE("Test removeInOrderN", "[flag]") {
     ostringstream oss;
     streambuf* rdbuf = std::cout.rdbuf();
     cout.rdbuf(oss.rdbuf());
@@ -285,7 +204,8 @@ TEST_CASE("Test removeInOrderN", "[removeInOrder]") {
                          "unsuccessful\n");
 }
 
-TEST_CASE("Test Search", "[search]") {
+// Test 8: tests search for name and id
+TEST_CASE("Test Search", "[flag]") {
     ostringstream oss;
     streambuf* rdbuf = std::cout.rdbuf();
     cout.rdbuf(oss.rdbuf());

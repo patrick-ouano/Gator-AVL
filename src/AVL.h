@@ -50,12 +50,6 @@ public:
     void printPostOrder();
     void printLevelCount();
     void removeInOrderN(int n);
-
-    // destructor
-    ~AVLTree() {
-        // use a postorder traversal to delete nodes since each node will
-        // only get visited once with a postorder traversal
-    }
 };
 
 #endif //AVL_H
